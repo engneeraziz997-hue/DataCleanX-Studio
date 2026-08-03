@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataCleanX Studio | المنصة الذكية لتنظيف وتحليل البيانات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --accent: #6366F1;
+            --accent-hover: #4F46E5;
+            --accent-light: #818CF8;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.12);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        aside {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent-light);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--accent);
+            color: #FFF;
+        }
+
+        main {
+            margin-right: 280px;
+            flex: 1;
+            padding: 30px;
+            max-width: 1400px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-top: 4px;
+            margin-bottom: 25px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .metric-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-light);
+            margin-top: 6px;
+        }
+
+        .metric-lbl {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+
+        .file-drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 450px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        th {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            color: var(--accent-light);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        tr:hover td { background: rgba(255, 255, 255, 0.03); }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="brand">
+            <i class="fa-solid fa-bolt"></i> DataCleanX Studio
+        </div>
+        
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="switchTab('import')"><i class="fa-solid fa-house"></i> الرئيسية والاستيراد</li>
+            <li class="nav-item" onclick="switchTab('clean')"><i class="fa-solid fa-broom"></i> جناح التنظيف والتعويض</li>
+            <li class="nav-item" onclick="switchTab('eda')"><i class="fa-solid fa-chart-pie"></i> التحليل الإحصائي</li>
+            <li class="nav-item" onclick="switchTab('visualize')"><i class="fa-solid fa-chart-line"></i> الرسوم والمخططات</li>
+            <li class="nav-item" onclick="switchTab('export')"><i class="fa-solid fa-download"></i> تصدير البيانات</li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="header">
+            <h1>⚡ DataCleanX Studio</h1>
+            <p>التطبيق الاحترافي الذكي لتنظيف، تعويض البيانات المفقودة، التحليل، والعرض البياني</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-lbl">عدد الصفوف</div>
+                <div class="metric-val" id="metric-rows">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-lbl">عدد الأعمدة</div>
+                <div class="metric-val" id="metric-cols">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-lbl">القيم المفقودة</div>
+                <div class="metric-val" id="metric-missing">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-lbl">الصفوف المكررة</div>
+                <div class="metric-val" id="metric-duplicates">0</div>
+            </div>
+        </div>
+
+        <!-- Section 1: Data Import -->
+        <section id="sec-import" class="tab-content">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-file-excel"></i> استيراد ملف البيانات</div>
+                <div class="file-drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--accent-light); margin-bottom: 12px;"></i>
+                    <p style="font-size: 1.1rem; font-weight: 600;">انقر هنا لاختيار ملف (Excel / CSV) أو قم بسحبه وإسقاطه</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">يدعم صيغ .xlsx, .xls, .csv</p>
+                    <input type="file" id="file-input" accept=".xlsx, .xls, .csv" class="hidden">
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button class="btn btn-secondary" onclick="loadSampleData()"><i class="fa-solid fa-wand-magic-sparkles"></i> تجربة بيانات مبيعات عينة</button>
+                </div>
+            </div>
+
+            <div class="card hidden" id="preview-card">
+                <div class="card-title"><i class="fa-solid fa-table"></i> معاينة البيانات الحالية</div>
+                <div class="table-container" id="table-wrapper"></div>
+            </div>
+        </section>
+
+        <!-- Section 2: Data Cleaning -->
+        <section id="sec-clean" class="tab-content hidden">
+            <div class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(30, 41, 59, 0.8)); border-color: var(--success);">
+                <div class="card-title" style="color: var(--success);"><i class="fa-solid fa-bolt-lightning"></i> التنظيف والتعويض التلقائي الذكي</div>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">يقوم بملء جميع الخلايا المفقودة في كافة الأعمدة تلقائياً (الوسيط للأرقام، والمنوال للنصوص).</p>
+                <button class="btn btn-success" onclick="autoImputeAll()"><i class="fa-solid fa-wand-magic-sparkles"></i> تعويض كافة المفقودات بضغطة واحدة</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-broom"></i> تعويض القيم المفقودة بالأعمدة</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>اختر العمود:</label>
+                        <select id="missing-col-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>طريقة التعبئة / الحذف:</label>
+                        <select id="missing-strategy">
+                            <option value="mean">تعبئة بالمتوسط الحسابي</option>
+                            <option value="median">تعبئة بالوسيط الحسابي</option>
+                            <option value="mode">تعبئة بالمنوال (الأكثر تكراراً)</option>
+                            <option value="drop_rows">حذف الصفوف المفقودة</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="cleanMissingValues()"><i class="fa-solid fa-check"></i> تطبيق المعالجة</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-copy"></i> إزالة الصفوف المكررة</div>
+                <button class="btn btn-danger" onclick="removeDuplicateRows()"><i class="fa-solid fa-trash"></i> حذف الصفوف المكررة</button>
+            </div>
+        </section>
+
+        <!-- Section 3: EDA -->
+        <section id="sec-eda" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-square-poll-vertical"></i> الملخص الإحصائي للأعمدة</div>
+                <div class="table-container" id="eda-table-wrapper"></div>
+            </div>
+        </section>
+
+        <!-- Section 4: Charts -->
+        <section id="sec-visualize" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-chart-simple"></i> رسم مخطط بياني تفاعلي</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>المحور الأفقي X (الفئات):</label>
+                        <select id="chart-x-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>المحور الرأسي Y (الأرقام):</label>
+                        <select id="chart-y-select"></select>
+                    </div>
+                </div>
+                <button class="btn" onclick="renderChart()"><i class="fa-solid fa-chart-line"></i> توليد المخطط</button>
+            </div>
+
+            <div class="card">
+                <canvas id="main-chart" style="max-height: 400px;"></canvas>
+            </div>
+        </section>
+
+        <!-- Section 5: Export -->
+        <section id="sec-export" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-file-export"></i> تصدير وحفظ البيانات المنظفة</div>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn btn-success" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> تصدير Excel (.xlsx)</button>
+                    <button class="btn btn-secondary" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> تصدير CSV (.csv)</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let currentDataset = [];
+        let chartInstance = null;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+
+            if (tabId === 'eda') generateEDA();
+            if (tabId === 'visualize') setupChartSelects();
+        }
+
+        function loadSampleData() {
+            currentDataset = [
+                { "ID": "TXN-101", "المدينة": "الرياض", "الفئة": "إلكترونيات", "الكمية": 3, "المبلغ": 1500, "التقييم": 4.5 },
+                { "ID": "TXN-102", "المدينة": "جدة", "الفئة": "أثاث", "الكمية": 1, "المبلغ": 800, "التقييم": 3.0 },
+                { "ID": "TXN-103", "المدينة": "الدمام", "الفئة": "ملابس", "الكمية": 5, "المبلغ": 450, "التقييم": 5.0 },
+                { "ID": "TXN-104", "المدينة": "مكة", "الفئة": "إلكترونيات", "الكمية": 2, "المبلغ": null, "التقييم": 4.0 },
+                { "ID": "TXN-105", "المدينة": "الرياض", "الفئة": "ألعاب", "الكمية": null, "المبلغ": 300, "التقييم": 2.5 },
+                { "ID": "TXN-101", "المدينة": "الرياض", "الفئة": "إلكترونيات", "الكمية": 3, "المبلغ": 1500, "التقييم": 4.5 }
+            ];
+            updateDataState();
+        }
+
+        const fileInput = document.getElementById('file-input');
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.SheetNames[0];
+                currentDataset = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+                updateDataState();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function updateDataState() {
+            if (!currentDataset || currentDataset.length === 0) return;
+
+            document.getElementById('metric-rows').innerText = currentDataset.length;
+            const cols = Object.keys(currentDataset[0] || {});
+            document.getElementById('metric-cols').innerText = cols.length;
+
+            let missingCount = 0;
+            currentDataset.forEach(row => {
+                cols.forEach(col => {
+                    if (row[col] === null || row[col] === undefined || row[col] === '') missingCount++;
+                });
+            });
+            document.getElementById('metric-missing').innerText = missingCount;
+
+            renderTable(currentDataset);
+            populateDropdowns(cols);
+            document.getElementById('preview-card').classList.remove('hidden');
+        }
+
+        function renderTable(data) {
+            if (!data || data.length === 0) return;
+            const cols = Object.keys(data[0]);
+            let html = '<table><thead><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+            
+            data.slice(0, 50).forEach(row => {
+                html += '<tr>' + cols.map(c => `<td>${row[c] !== null && row[c] !== undefined ? row[c] : '<span style="color:var(--danger)">مفقود</span>'}</td>`).join('') + '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('table-wrapper').innerHTML = html;
+        }
+
+        function populateDropdowns(cols) {
+            const missingSelect = document.getElementById('missing-col-select');
+            missingSelect.innerHTML = cols.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function autoImputeAll() {
+            if (!currentDataset || currentDataset.length === 0) return;
+            const cols = Object.keys(currentDataset[0]);
+            cols.forEach(col => {
+                const nums = currentDataset.map(r => Number(r[col])).filter(n => !isNaN(n));
+                if (nums.length > 0) {
+                    const sorted = nums.sort((a,b) => a-b);
+                    const median = sorted[Math.floor(sorted.length/2)];
+                    currentDataset.forEach(r => {
+                        if (r[col] === null || r[col] === undefined || r[col] === '') r[col] = median;
+                    });
+                } else {
+                    currentDataset.forEach(r => {
+                        if (r[col] === null || r[col] === undefined || r[col] === '') r[col] = "غير محدد";
+                    });
+                }
+            });
+            alert("تم تعويض كافة القيم المفقودة تلقائياً بنجاح!");
+            updateDataState();
+        }
+
+        function cleanMissingValues() {
+            const col = document.getElementById('missing-col-select').value;
+            const strategy = document.getElementById('missing-strategy').value;
+
+            if (strategy === 'drop_rows') {
+                currentDataset = currentDataset.filter(row => row[col] !== null && row[col] !== undefined && row[col] !== '');
+            } else if (strategy === 'mean') {
+                const nums = currentDataset.map(r => Number(r[col])).filter(n => !isNaN(n));
+                const mean = nums.reduce((a,b) => a+b, 0) / (nums.length || 1);
+                currentDataset.forEach(row => {
+                    if (row[col] === null || row[col] === undefined || row[col] === '') row[col] = Math.round(mean * 100) / 100;
+                });
+            }
+            alert(`تم تعويض القيمة بنجاح!`);
+            updateDataState();
+        }
+
+        function removeDuplicateRows() {
+            const initial = currentDataset.length;
+            const seen = new Set();
+            currentDataset = currentDataset.filter(row => {
+                const str = JSON.stringify(row);
+                if (seen.has(str)) return false;
+                seen.add(str);
+                return true;
+            });
+            alert(`تم حذف ${initial - currentDataset.length} صف مكرر!`);
+            updateDataState();
+        }
+
+        function generateEDA() {
+            if (!currentDataset || currentDataset.length === 0) return;
+            const cols = Object.keys(currentDataset[0]);
+            let html = '<table><thead><tr><th>العمود</th><th>المفقودات</th><th>عينة بيانات</th></tr></thead><tbody>';
+            cols.forEach(col => {
+                const missing = currentDataset.filter(r => r[col] === null || r[col] === undefined || r[col] === '').length;
+                html += `<tr><td><b>${col}</b></td><td>${missing}</td><td>${currentDataset[0][col] || 'N/A'}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('eda-table-wrapper').innerHTML = html;
+        }
+
+        function setupChartSelects() {
+            if (!currentDataset || currentDataset.length === 0) return;
+            const cols = Object.keys(currentDataset[0]);
+            document.getElementById('chart-x-select').innerHTML = cols.map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById('chart-y-select').innerHTML = cols.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function renderChart() {
+            const xCol = document.getElementById('chart-x-select').value;
+            const yCol = document.getElementById('chart-y-select').value;
+
+            const labels = currentDataset.map(r => r[xCol]);
+            const data = currentDataset.map(r => Number(r[yCol]) || 0);
+
+            const ctx = document.getElementById('main-chart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${yCol} حسب ${xCol}`,
+                        data: data,
+                        backgroundColor: '#6366F1',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#F8FAFC' } } },
+                    scales: {
+                        x: { ticks: { color: '#94A3B8' } },
+                        y: { ticks: { color: '#94A3B8' } }
+                    }
+                }
+            });
+        }
+
+        function exportExcel() {
+            const ws = XLSX.utils.json_to_sheet(currentDataset);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "CleanedData");
+            XLSX.writeFile(wb, "Cleaned_DataCleanX.xlsx");
+        }
+
+        function exportCSV() {
+            const ws = XLSX.utils.json_to_sheet(currentDataset);
+            const csv = XLSX.utils.sheet_to_csv(ws);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Cleaned_DataCleanX.csv";
+            link.click();
+        }
+    </script>
+</body>
+</html>
